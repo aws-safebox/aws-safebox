@@ -136,7 +136,7 @@ Clone the repository and create a virtual environment:
 
 ```bash
 git clone https://github.com/aws-safebox/aws-safebox.git
-cd aws-safebox-mvp
+cd aws-safebox
 
 python3 -m venv .venv
 source .venv/bin/activate

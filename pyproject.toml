@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aws-safebox"
+version = "0.1.0"
+description = "Local safety guardrails for AI-assisted AWS infrastructure work"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8,<9"]
+
+[project.scripts]
+safebox = "safebox.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

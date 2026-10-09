@@ -145,3 +145,151 @@ def test_custom_policy_does_not_change_default_policy():
     result = decide("terraform plan")
 
     assert result.allowed is True
+
+def test_sudo_terraform_destroy_is_blocked():
+    result = decide("sudo terraform destroy")
+    assert result.allowed is False
+    assert result.rule == "terraform_destroy"
+
+
+def test_absolute_path_terraform_destroy_is_blocked():
+    result = decide("/usr/local/bin/terraform destroy")
+    assert result.allowed is False
+    assert result.rule == "terraform_destroy"
+
+
+def test_env_wrapper_terraform_destroy_is_blocked():
+    result = decide("env AWS_PROFILE=prod terraform destroy")
+    assert result.allowed is False
+    assert result.rule == "terraform_destroy"
+
+
+def test_environment_assignment_terraform_destroy_is_blocked():
+    result = decide("AWS_PROFILE=prod terraform destroy")
+    assert result.allowed is False
+    assert result.rule == "terraform_destroy"
+
+
+def test_sudo_aws_terminate_is_blocked():
+    result = decide(
+        "sudo aws ec2 terminate-instances --instance-ids i-123"
+    )
+    assert result.allowed is False
+    assert result.rule == "aws_ec2_terminate"
+
+
+def test_absolute_path_aws_terminate_is_blocked():
+    result = decide(
+        "/usr/local/bin/aws ec2 terminate-instances --instance-ids i-123"
+    )
+    assert result.allowed is False
+    assert result.rule == "aws_ec2_terminate"
+
+
+def test_env_wrapper_aws_terminate_is_blocked():
+    result = decide(
+        "env AWS_PROFILE=prod aws ec2 terminate-instances "
+        "--instance-ids i-123"
+    )
+    assert result.allowed is False
+    assert result.rule == "aws_ec2_terminate"
+
+
+def test_environment_assignment_aws_terminate_is_blocked():
+    result = decide(
+        "AWS_PROFILE=prod aws ec2 terminate-instances "
+        "--instance-ids i-123"
+    )
+    assert result.allowed is False
+    assert result.rule == "aws_ec2_terminate"
+
+
+def test_bash_wrapped_terraform_destroy_is_blocked():
+    result = decide('bash -c "terraform destroy"')
+    assert result.allowed is False
+    assert result.rule == "terraform_destroy"
+
+
+def test_sh_wrapped_terraform_destroy_is_blocked():
+    result = decide('sh -c "terraform destroy"')
+    assert result.allowed is False
+    assert result.rule == "terraform_destroy"
+
+
+def test_bash_wrapped_aws_terminate_is_blocked():
+    result = decide(
+        'bash -c "aws ec2 terminate-instances --instance-ids i-123"'
+    )
+    assert result.allowed is False
+    assert result.rule == "aws_ec2_terminate"
+
+def test_and_chain_with_terraform_destroy_is_blocked():
+    result = decide("terraform plan && terraform destroy")
+    assert result.allowed is False
+    assert result.rule == "terraform_destroy"
+
+
+def test_semicolon_chain_with_terraform_destroy_is_blocked():
+    result = decide("terraform plan; terraform destroy")
+    assert result.allowed is False
+    assert result.rule == "terraform_destroy"
+
+
+def test_or_chain_with_terraform_destroy_is_blocked():
+    result = decide("terraform plan || terraform destroy")
+    assert result.allowed is False
+    assert result.rule == "terraform_destroy"
+
+
+def test_aws_chain_with_terminate_is_blocked():
+    result = decide(
+        "aws ec2 describe-instances && "
+        "aws ec2 terminate-instances --instance-ids i-123"
+    )
+    assert result.allowed is False
+    assert result.rule == "aws_ec2_terminate"
+
+
+def test_safe_compound_command_is_allowed():
+    result = decide(
+        "terraform plan && aws ec2 describe-instances"
+    )
+    assert result.allowed is True
+
+def test_pipe_is_blocked_as_unsupported():
+    result = decide("terraform plan | terraform destroy")
+    assert result.allowed is False
+    assert result.rule == "unsupported_shell"
+
+
+def test_background_operator_is_blocked_as_unsupported():
+    result = decide("terraform plan & terraform destroy")
+    assert result.allowed is False
+    assert result.rule == "unsupported_shell"
+
+
+def test_dollar_command_substitution_is_blocked():
+    result = decide("echo $(terraform destroy)")
+    assert result.allowed is False
+    assert result.rule == "unsupported_shell"
+
+
+def test_backtick_command_substitution_is_blocked():
+    result = decide("`terraform destroy`")
+    assert result.allowed is False
+    assert result.rule == "unsupported_shell"
+
+
+def test_nested_compound_shell_command_is_blocked():
+    result = decide('bash -c "terraform plan && terraform destroy"')
+    assert result.allowed is False
+    assert result.rule == "unsupported_shell"
+
+
+def test_nested_compound_aws_command_is_blocked():
+    result = decide(
+        'bash -c "aws ec2 describe-instances && '
+        'aws ec2 terminate-instances --instance-ids i-123"'
+    )
+    assert result.allowed is False
+    assert result.rule == "unsupported_shell"

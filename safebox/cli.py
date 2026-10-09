@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import argparse
+import shlex
 import sys
 from pathlib import Path
 
 from safebox.executor import execute
 from safebox.policy import decide, load_rules
+from safebox.proxy import DEFAULT_PROXY_DIR, setup_proxies
 
 
 def main() -> int:
@@ -51,7 +53,44 @@ def main() -> int:
         help="Path to a custom SafeBox TOML policy file.",
     )
 
+    setup_parser = subparsers.add_parser(
+        "setup",
+        help="Create SafeBox executable proxies.",
+    )
+
+    setup_parser.add_argument(
+        "--proxy-dir",
+        type=Path,
+        default=DEFAULT_PROXY_DIR,
+        help=(
+            "Directory where SafeBox proxies are created. "
+            "Default: ~/.safebox/bin"
+        ),
+    )
+
     args = parser.parse_args()
+
+    if args.action == "setup":
+        result = setup_proxies(
+            proxy_dir=args.proxy_dir,
+        )
+
+        print("SafeBox proxies created:")
+        for proxy in result.proxies:
+            print(f"  {proxy}")
+
+        quoted_proxy_dir = shlex.quote(str(result.proxy_dir))
+
+        print()
+        print("Add the SafeBox proxy directory to the front of PATH:")
+        print()
+        print(f'export PATH={quoted_proxy_dir}:"$PATH"')
+        print()
+        print(
+            "SafeBox does not modify your shell configuration automatically."
+        )
+
+        return 0
 
     rules = load_rules(args.policy) if args.policy else None
 

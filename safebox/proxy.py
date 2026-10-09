@@ -2,7 +2,19 @@ from __future__ import annotations
 
 import os
 import shlex
+from dataclasses import dataclass
 from pathlib import Path
+from typing import Iterable
+
+
+DEFAULT_PROXY_DIR = Path.home() / ".safebox" / "bin"
+DEFAULT_PROXY_COMMANDS = ("terraform", "aws", "kubectl")
+
+
+@dataclass(frozen=True)
+class SetupResult:
+    proxy_dir: Path
+    proxies: tuple[Path, ...]
 
 
 def find_real_executable(
@@ -77,3 +89,23 @@ PATH="$clean_path" exec safebox run "$command_string"
     proxy_path.chmod(0o755)
 
     return proxy_path
+
+
+def setup_proxies(
+    proxy_dir: Path = DEFAULT_PROXY_DIR,
+    commands: Iterable[str] = DEFAULT_PROXY_COMMANDS,
+) -> SetupResult:
+    proxy_dir = proxy_dir.expanduser()
+
+    proxies = tuple(
+        create_proxy(
+            command_name=command_name,
+            proxy_dir=proxy_dir,
+        )
+        for command_name in commands
+    )
+
+    return SetupResult(
+        proxy_dir=proxy_dir,
+        proxies=proxies,
+    )

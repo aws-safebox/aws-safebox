@@ -1,7 +1,12 @@
 import os
 import subprocess
 
-from safebox.proxy import create_proxy, find_real_executable
+from safebox.proxy import (
+    DEFAULT_PROXY_COMMANDS,
+    create_proxy,
+    find_real_executable,
+    setup_proxies,
+)
 
 
 def test_create_proxy_creates_executable(tmp_path):
@@ -38,6 +43,22 @@ def test_create_aws_proxy(tmp_path):
 
     assert proxy_path == tmp_path / "aws"
     assert proxy_path.exists()
+
+
+def test_setup_proxies_creates_default_commands(tmp_path):
+    result = setup_proxies(
+        proxy_dir=tmp_path,
+    )
+
+    assert result.proxy_dir == tmp_path
+    assert len(result.proxies) == len(DEFAULT_PROXY_COMMANDS)
+
+    for command_name in DEFAULT_PROXY_COMMANDS:
+        proxy_path = tmp_path / command_name
+
+        assert proxy_path.exists()
+        assert proxy_path.is_file()
+        assert proxy_path.stat().st_mode & 0o111
 
 
 def test_find_real_executable_skips_proxy_dir(tmp_path, monkeypatch):

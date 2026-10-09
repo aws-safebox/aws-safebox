@@ -121,9 +121,12 @@ not blocked by these rules.
 ## Requirements
 
 - Python 3.11+
-- macOS or Linux
+- macOS (currently tested)
 - Git for development installation
 - the infrastructure tools you want SafeBox to protect
+
+The current proxy implementation is POSIX-oriented and is expected to work on
+Linux, but Community Edition 0.1.0 has not yet been manually verified on Linux.
 
 SafeBox itself does not require AWS credentials merely to evaluate commands.
 
@@ -239,8 +242,32 @@ to pass through SafeBox without changing the command to:
 safebox run "terraform plan"
 ```
 
-Automatic user-facing proxy installation is still being prepared for the
-Community Edition release.
+### Set up executable proxies
+
+Create persistent SafeBox proxies with `safebox setup`.
+
+By default, SafeBox creates proxies for `terraform`, `aws`, and `kubectl` in
+`~/.safebox/bin`.
+
+SafeBox deliberately does not modify your shell configuration automatically.
+After setup, add the proxy directory to the front of PATH:
+
+    export PATH="$HOME/.safebox/bin:$PATH"
+
+You can then use the protected tools normally. For example:
+
+    terraform plan
+    terraform destroy
+
+Commands allowed by policy are passed to the real executable. Blocked commands
+are stopped before the real executable runs.
+
+To make the PATH change persistent, add the same export command to the
+appropriate shell configuration file for your environment.
+
+To use a different proxy directory:
+
+    safebox setup --proxy-dir /path/to/proxy-directory
 
 ## Custom policies
 

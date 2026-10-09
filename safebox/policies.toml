@@ -1,0 +1,47 @@
+[[rules]]
+id = "terraform_destroy"
+description = "Destroy Terraform-managed infrastructure"
+action = "block"
+severity = "critical"
+command = ["terraform", "destroy"]
+
+
+[[rules]]
+id = "kubectl_delete"
+description = "Delete Kubernetes resources"
+action = "block"
+severity = "high"
+command = ["kubectl", "delete"]
+
+
+[[rules]]
+id = "aws_ec2_terminate"
+description = "Terminate EC2 instances"
+action = "block"
+severity = "critical"
+command = ["aws", "ec2", "terminate-instances"]
+
+
+[[rules]]
+id = "aws_rds_delete"
+description = "Delete an RDS database instance"
+action = "block"
+severity = "critical"
+command = ["aws", "rds", "delete-db-instance"]
+
+
+[[rules]]
+id = "aws_s3_recursive_delete"
+description = "Recursively delete S3 objects"
+action = "block"
+severity = "critical"
+command = ["aws", "s3", "rm"]
+requires_any = ["--recursive", "-r"]
+
+
+[[rules]]
+id = "aws_cloudformation_delete_stack"
+description = "Delete a CloudFormation stack"
+action = "block"
+severity = "critical"
+command = ["aws", "cloudformation", "delete-stack"]

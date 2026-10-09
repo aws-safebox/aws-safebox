@@ -395,7 +395,7 @@ python -m pytest -q
 Current development baseline:
 
 ```text
-57 tests passing
+59 tests passing
 ```
 
 ## License

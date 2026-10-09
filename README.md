@@ -121,12 +121,12 @@ not blocked by these rules.
 ## Requirements
 
 - Python 3.11+
-- macOS (currently tested)
+- macOS or Linux
 - Git for development installation
 - the infrastructure tools you want SafeBox to protect
 
-The current proxy implementation is POSIX-oriented and is expected to work on
-Linux, but Community Edition 0.1.0 has not yet been manually verified on Linux.
+The current proxy implementation is POSIX-oriented. Community Edition 0.1.0
+has been manually verified on macOS and tested in a Linux container environment.
 
 SafeBox itself does not require AWS credentials merely to evaluate commands.
 

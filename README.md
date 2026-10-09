@@ -135,7 +135,7 @@ SafeBox itself does not require AWS credentials merely to evaluate commands.
 Clone the repository and create a virtual environment:
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/aws-safebox/aws-safebox.git
 cd aws-safebox-mvp
 
 python3 -m venv .venv
